@@ -4,16 +4,16 @@ import { FALLBACK_PRICES, fetchPrices, priceMapFromOverview } from "./prices";
 const overview = {
   categories: [
     { platforms: [{ jobs: [{ id: "news.search", cheapestPerCall: 0.002, cheapestPerResult: null }, { id: "other.job", cheapestPerCall: 9 }] }] },
-    { platforms: [{ jobs: [{ id: "jobs.search", cheapestPerCall: 0.0005, cheapestPerResult: 0.000145 }] }] },
+    { platforms: [{ jobs: [{ id: "jobs.search", cheapestPerCall: 0.0005, cheapestPerResult: 0.000145 }, { id: "web.scrape.markdown", cheapestPerCall: 0.0002, cheapestPerResult: 0.001 }] }] },
   ],
 };
 
 describe("priceMapFromOverview", () => {
-  it("takes per-call prices, and per-result x 10 when that is higher", () => {
+  it("takes per-call prices, or per-result x results per call (10 for searches, 1 for a page) when higher", () => {
     const p = priceMapFromOverview(overview);
     expect(p["news.search"]).toBe(0.002);
     expect(p["jobs.search"]).toBeCloseTo(0.00145);
-    expect(p["web.scrape.markdown"]).toBe(FALLBACK_PRICES["web.scrape.markdown"]);
+    expect(p["web.scrape.markdown"]).toBe(0.001);
   });
 });
 

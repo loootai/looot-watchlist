@@ -7,11 +7,11 @@ export const JOBS = {
 
 export type JobId = (typeof JOBS)[keyof typeof JOBS];
 
-/** Prices used when the catalog cannot be read. Cheapest provider per call on 2026-10-08. */
+/** Prices used when the catalog cannot be read: the cheapest provider on 2026-10-08, per call or per result x results per call, whichever is higher. */
 export const FALLBACK_PRICES: Record<JobId, number> = {
   "news.search": 0.00099,
-  "jobs.search": 0.0005,
-  "web.scrape.markdown": 0.0002,
+  "jobs.search": 0.00145,
+  "web.scrape.markdown": 0.001,
 };
 
 interface OverviewJob {
@@ -23,8 +23,8 @@ interface Overview {
   categories?: { platforms?: { jobs?: OverviewJob[] }[] }[];
 }
 
-/** Results per call assumed when a job is only priced per result. */
-const RESULTS_PER_CALL = 10;
+/** Results one call returns, used when a job is priced per result. A page read is one result. */
+const RESULTS_PER_CALL: Record<JobId, number> = { "news.search": 10, "jobs.search": 10, "web.scrape.markdown": 1 };
 
 /** Reads the cheapest per-call price of each job this app uses from a catalog overview answer. */
 export function priceMapFromOverview(overview: Overview): Record<JobId, number> {
@@ -35,7 +35,7 @@ export function priceMapFromOverview(overview: Overview): Record<JobId, number> 
       for (const j of p.jobs ?? []) {
         if (!wanted.has(j.id)) continue;
         const perCall = typeof j.cheapestPerCall === "number" ? j.cheapestPerCall : null;
-        const perResult = typeof j.cheapestPerResult === "number" ? j.cheapestPerResult * RESULTS_PER_CALL : null;
+        const perResult = typeof j.cheapestPerResult === "number" ? j.cheapestPerResult * RESULTS_PER_CALL[j.id as JobId] : null;
         const price = Math.max(perCall ?? 0, perResult ?? 0);
         if (price > 0) out[j.id as JobId] = price;
       }

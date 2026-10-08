@@ -15,5 +15,5 @@ for f in "$root"/supabase/migrations/*.sql; do p -f "$f"; done
 out="$(p -At -f "$root/supabase/tests/rls_check.sql" 2>&1)"
 echo "$out"
 expected=$'user2 sees accounts|0\nuser2 sees signals|0\nuser2 updated|0'
-[[ "$out" == *"$expected"* && "$out" == *"spoofed owner_id refused by RLS"* && "$out" == *"user1 sees accounts|1"* ]] || { echo "RLS check FAILED"; exit 1; }
+[[ "$out" == *"$expected"* && "$out" == *"spoofed owner_id refused by RLS"* && "$out" == *"user1 sees accounts|1"* && "$out" == *"signal on another user account refused"* && "$out" == *"user1 sees signals|1"* ]] || { echo "RLS check FAILED"; exit 1; }
 echo "RLS check passed"

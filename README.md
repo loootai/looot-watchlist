@@ -8,7 +8,7 @@
 
 An open-source account watchlist for sales teams. You list the companies you sell to, and it checks each one for new news (funding, executive changes, launches, layoffs), new job posts that match the roles you care about, and changes on the pages you watch, such as `/pricing` or `/careers`. Everything new lands in one feed.
 
-It runs on Next.js and Supabase (auth and Postgres), deploys to Vercel, and gets its data from [looot](https://looot.ai): one key and one prepaid balance for 2,500+ data API endpoints. A check of one account costs about $0.002 to $0.003. There is no seat price.
+It runs on Next.js and Supabase (auth and Postgres), deploys to Vercel, and gets its data from [looot](https://looot.ai): one key and one prepaid balance for 2,500+ data API endpoints. A check of one account with two watched pages costs about $0.004 at the prices below. There is no seat price.
 
 ## What it does
 
@@ -20,13 +20,13 @@ It runs on Next.js and Supabase (auth and Postgres), deploys to Vercel, and gets
 
 ## What one check runs
 
-| Signal | looot job | Input | Price on 2026-10-08 |
+| Signal | looot job | Input | Price used for the quote (2026-10-08) |
 |---|---|---|---|
-| News | `job:news.search` | `"<company name>"` | from $0.00099 per call |
-| Hiring | `job:jobs.search` (only when role words are set) | company name plus role words | from $0.0005 per call |
-| Page change | `job:web.scrape.markdown` per watched page | the page URL | from $0.0002 per call |
+| News | `job:news.search` | `"<company name>"` | $0.00099 per call |
+| Hiring | `job:jobs.search` (only when role words are set) | company name plus role words | $0.00145 ($0.0005 per call, or $0.000145 per result x 10) |
+| Page change | `job:web.scrape.markdown` per watched page | the page URL | $0.001 ($0.0002 per call, or $0.001 per page result) |
 
-Prices come from the free public catalog (`GET https://api.looot.ai/v1/catalog/overview?depth=jobs`), cached for an hour, with the dated prices above as a fallback. Each run uses `fallback` so looot tries the next provider when one misses.
+Prices come from the free public catalog (`GET https://api.looot.ai/v1/catalog/overview?depth=jobs`), cached for an hour, with the dated prices above as a fallback. The quote takes the higher of the per-call and per-result price, so it errs high. Each run uses `fallback` so looot tries the next provider when one misses.
 
 ## Spending rules
 
