@@ -1,0 +1,30 @@
+{
+  "name": "looot-watchlist",
+  "version": "0.1.0",
+  "description": "Buying signals on your target accounts: news, hiring and page changes in one feed. Next.js, Supabase and looot.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "leak-scan": "bash scripts/leak-scan.sh .",
+    "test:rls": "bash scripts/test-rls.sh"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.2",
+    "next": "16.3.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "5.9.3",
+    "vitest": "5.0.3"
+  }
+}
