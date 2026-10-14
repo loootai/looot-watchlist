@@ -1,6 +1,16 @@
-<p align="center"><img src="assets/hero.png" alt="looot-watchlist: buying signals on your target accounts" width="100%"></p>
+<p align="center"><img src="docs/media/banner.png" alt="looot watchlist: the Signals feed and the cost quote for seven accounts, with Clay, Apollo.io, ZoomInfo, Apify, Firecrawl, Exa and Tavily as the watched accounts" width="100%"></p>
 
-<p align="center"><img src="assets/screenshot-desktop.png" alt="Signals feed with the sidebar" width="68%"> <img src="assets/screenshot-mobile.png" alt="Signals feed on a phone, dark theme" width="22%"></p>
+<p align="center"><sub>Logos and names belong to their owners. Public data from a live run on 2026-10-14. No affiliation.</sub></p>
+
+| | |
+|---|---|
+| <img src="docs/media/card-feed.png" alt="Signals feed with news, hiring and page changes"> | <img src="docs/media/card-hiring.png" alt="Hiring signals filtered by role words"> |
+| <img src="docs/media/card-quote.png" alt="Cost quote before the check"> | <img src="docs/media/card-accounts.png" alt="Accounts with role words and watched pages"> |
+| <img src="docs/media/card-pages.png" alt="Page change signals, demo data"> | |
+
+<p align="center"><img src="docs/media/demo.gif" alt="Walkthrough: feed, hiring filter, page changes, accounts and the quote" width="760"></p>
+
+[Watch the walkthrough as MP4](docs/media/demo.mp4)
 
 # looot watchlist
 
@@ -71,6 +81,27 @@ You need a Supabase project, a looot agent token, and Node 20 or newer.
 - `CRON_SECRET`: any long random string. Vercel sends it as `Authorization: Bearer <CRON_SECRET>`.
 - `SUPABASE_SERVICE_ROLE_KEY`: the service role key from Project Settings, API. Only the cron route uses it; it sets `owner_id` on every row itself.
 
+## Live run
+
+On 2026-10-14 I watched seven of looot's neighbours: Clay.com, Apollo.io, ZoomInfo, Apify, Firecrawl, Exa.ai and Tavily. Each account had the role words `SDR, Account Executive` and two pages, `/pricing` and `/careers`.
+
+- The quote said 28 runs and $0.0311.
+- The first check made 28 looot calls and the app's cost log says $0.0117. It recorded a baseline for all seven accounts and created no signals, as designed. It stored 88 items.
+- Second check: I removed the two newest headlines per account and the hiring items for Clay and Apollo from the stored baseline, then checked again the same day. The idempotency keys replayed the stored runs, which created 20 signals from real results: 14 news, 4 hiring and 2 page changes. That replay is the only reason the feed has anything in it. A real second check on a later day would show what is actually new.
+- Screens made on a local stand-in for Supabase (a small script that answers the auth and REST calls from memory), because I did not run Docker or a Supabase project. The app code ran unchanged.
+
+What worked:
+- News was good for every account: ten distinct links each, with sources such as SiliconANGLE, PR Newswire and the Mozilla Blog. Tags found funding (Firecrawl) and partnership (Exa). Most headlines get the tag `other`.
+- Hiring found postings only for Clay and Apollo.io (two each). The other five returned nothing that passed the employer and role filter.
+
+What was weak:
+- The same posting shows up twice when the job board lists it under two URLs (Clay and Apollo above). The app dedupes by URL, not by title.
+- The two page-change signals on the pricing pages of Tavily and Exa are Demo data. One day gives no real second read, so I edited the stored first version of those two pages and let the live read of today diff against it. The lines shown are real text from the live pages, the "change" is staged. The diff of a markdown page also shows raw image links.
+- A replayed check records its estimated spend in the monthly total again. The check_runs row of the replay said $0.0117; I did not confirm what looot charged for replayed runs. I set that row to $0 before taking the screenshots.
+- Names of individuals in two headlines are replaced with "[name hidden]" in the images.
+
+Everything in the images is from this run except the page-change card, which is labelled Demo data.
+
 ## Tests
 
 ```bash
@@ -85,7 +116,7 @@ The tests cover the looot client (request shape, polling, errors), price parsing
 ## Limits
 
 - Provider answers differ. `src/lib/extract.ts` finds the first list of items with a link and a title, which covers the common news and job shapes. If a provider answers in a shape it misses, the signal is lost, not invented.
-- The app was built and tested without a live looot run or a live Supabase project. The first real check on your account is the live test: start with one account.
+- The first live looot run is described in Live run above. No live Supabase project was used, so start with one account on yours.
 - Job board results mix in other employers. Postings are kept only when the employer name matches the account and the title matches a role word.
 - Page change detection ignores dates and times but not other text that changes on every load. Watch stable pages.
 
